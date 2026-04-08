@@ -22,7 +22,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        device: ['Mobile Chrome', 'Mobile Safari', 'Galaxy S21']
+        device: ['Mobile Chrome', 'Mobile Safari', 'Galaxy S24']
         node-version: [20.x]
 
     steps:

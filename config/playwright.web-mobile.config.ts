@@ -60,8 +60,8 @@ export default defineConfig({
       use: { ...devices['iPhone 13 Pro'] },
     },
     {
-      name: 'Galaxy S21',
-      use: { ...devices['Galaxy S21'] },
+      name: 'Galaxy S24',
+      use: { ...devices['Galaxy S24'] },
     },
   ],
 });
