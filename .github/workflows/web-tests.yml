@@ -92,7 +92,7 @@ jobs:
         run: |
           npm install -g junit-report-merger
           mkdir -p reports/junit
-          junit-report-merger -o reports/junit/merged-results.xml junit-artifacts/**/web-results.xml || true
+          junit-report-merger reports/junit/merged-results.xml "junit-artifacts/**/web-results.xml" || true
 
       - name: Upload merged results
         uses: actions/upload-artifact@v4

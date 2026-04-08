@@ -78,7 +78,7 @@ test.describe('Mobile Smoke Tests @mobile @smoke', () => {
 
     // Image, name, price should be visible in mobile layout
     await expect(
-      firstItem.locator('.inventory_item_img')
+      firstItem.locator('img.inventory_item_img')
     ).toBeVisible();
     await expect(
       firstItem.locator('.inventory_item_name')
@@ -199,7 +199,7 @@ test.describe('Mobile Smoke Tests @mobile @smoke', () => {
 
     // ==================== ASSERT ====================
     // Menu should open
-    const menu = page.locator('[class*="menu"]');
+    const menu = page.locator('.bm-menu-wrap');
     await expect(menu).toBeVisible();
 
     // Menu items should be clickable
