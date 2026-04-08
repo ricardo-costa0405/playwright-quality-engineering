@@ -62,12 +62,12 @@ jobs:
           path: reports/html/web-mobile
           retention-days: 30
 
-      - name: Upload screencast on failure
+      - name: Upload videos on failure
         uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: screencast-web-mobile-${{ matrix.device }}
-          path: reports/screencast-debug
+          name: videos-web-mobile-${{ matrix.device }}
+          path: test-results/
           retention-days: 7
 
       - name: Publish test results
