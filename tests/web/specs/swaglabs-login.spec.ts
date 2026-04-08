@@ -30,8 +30,8 @@ test.describe('Login Feature @smoke @login', () => {
     // ==================== ASSERT ====================
     await expect(page).toHaveURL(/inventory\.html/);
     await expect(page).toHaveTitle('Swag Labs');
-    await expect(page.locator('.inventory_list')).toBeVisible();
-    await expect(page.locator('.title')).toHaveText('Products');
+    await expect(page.locator('[data-test="inventory-list"]')).toBeVisible();
+    await expect(page.locator('[data-test="title"]')).toHaveText('Products');
   });
 
   // ─── Error states ────────────────────────────────────────────────────────
@@ -61,12 +61,12 @@ test.describe('Login Feature @smoke @login', () => {
     await expect(page.locator('[data-test="error"]')).toContainText('Username and password do not match');
   });
 
-  test('submitting empty form shows validation error', async ({ loginPage, page }) => {
+  test('submitting empty form shows validation error', async ({ loginPage: _loginPage, page }) => {
     // ==================== ARRANGE ====================
     // Form is already empty on navigate — nothing extra to arrange
 
     // ==================== ACT ====================
-    await page.locator('#login-button').click();
+    await page.locator('[data-test="login-button"]').click();
 
     // ==================== ASSERT ====================
     await expect(page.locator('[data-test="error"]')).toBeVisible();
@@ -86,7 +86,7 @@ test.describe('Login Feature @smoke @login', () => {
 
     // ==================== ASSERT ====================
     await expect(page).toHaveURL(/saucedemo\.com\/?$/);
-    await expect(page.locator('#login-button')).toBeVisible();
+    await expect(page.locator('[data-test="login-button"]')).toBeVisible();
 
     // Verify session is truly gone — navigating to inventory redirects back
     await page.goto('/inventory.html');

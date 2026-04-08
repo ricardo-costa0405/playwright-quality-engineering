@@ -14,9 +14,9 @@ import { BasePage } from '../BasePage';
  */
 export class SauceDemoCartPage extends BasePage {
   private readonly SELECTORS = {
-    title:             '.title',
-    cartList:          '.cart_list',
-    cartItem:          '.cart_item',
+    title:             '[data-test="title"]',
+    cartList:          '[data-test="cart-list"]',
+    cartItem:          '[data-test="inventory-item"]',
     itemName:          '[data-test="inventory-item-name"]',
     itemPrice:         '[data-test="inventory-item-price"]',
     itemQuantity:      '[data-test="item-quantity"]',

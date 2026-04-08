@@ -42,7 +42,7 @@ test.describe('Performance Glitch User Variant @performance-user', () => {
     expect(loginDuration).toBeGreaterThan(2000);
     expect(loginDuration).toBeLessThan(15000); // Should not exceed 15s
 
-    await expect(page.locator('.inventory_list')).toBeVisible();
+    await expect(page.locator('[data-test="inventory-list"]')).toBeVisible();
   });
 
   // ─── Inventory loading with performance degradation ──────────────────────
@@ -59,14 +59,14 @@ test.describe('Performance Glitch User Variant @performance-user', () => {
     const inventoryLoadDuration = Date.now() - loadStartTime;
 
     // ==================== ASSERT ====================
-    const itemCount = await page.locator('.inventory_item').count();
+    const itemCount = await page.locator('[data-test="inventory-item"]').count();
     expect(itemCount).toBe(6);
 
     // Loading should take noticeably longer due to performance glitch (> 2s but < 30s)
     expect(inventoryLoadDuration).toBeGreaterThan(2000);
     expect(inventoryLoadDuration).toBeLessThan(30000);
 
-    const prices = await page.locator('.inventory_item_price').allTextContents();
+    const prices = await page.locator('[data-test="inventory-item-price"]').allTextContents();
     expect(prices.length).toBe(6);
   });
 
@@ -90,9 +90,9 @@ test.describe('Performance Glitch User Variant @performance-user', () => {
 
     // ==================== ACT ====================
     await page.goto('https://www.saucedemo.com');
-    await page.fill('input[name="user-name"]', username);
-    await page.fill('input[name="password"]', password);
-    await page.click('#login-button');
+    await page.fill('[data-test="username"]', username);
+    await page.fill('[data-test="password"]', password);
+    await page.click('[data-test="login-button"]');
     await page.waitForURL(/inventory\.html/, { timeout: 30000 });
 
     // ==================== ASSERT ====================
@@ -116,9 +116,9 @@ test.describe('Performance Glitch User Variant @performance-user', () => {
     // ==================== ARRANGE ====================
     const { username, password } = SAUCE_CREDENTIALS.glitch;
     await page.goto('https://www.saucedemo.com');
-    await page.fill('input[name="user-name"]', username);
-    await page.fill('input[name="password"]', password);
-    await page.click('#login-button');
+    await page.fill('[data-test="username"]', username);
+    await page.fill('[data-test="password"]', password);
+    await page.click('[data-test="login-button"]');
     await page.waitForURL(/inventory\.html/, { timeout: 30000 });
 
     const startTime = Date.now();
@@ -127,7 +127,7 @@ test.describe('Performance Glitch User Variant @performance-user', () => {
     await page.click('[data-test="add-to-cart-sauce-labs-backpack"]');
 
     // ==================== ASSERT ====================
-    await expect(page.locator('.shopping_cart_badge')).toHaveText('1');
+    await expect(page.locator('[data-test="shopping-cart-badge"]')).toHaveText('1');
     const addDuration = Date.now() - startTime;
 
     expect(addDuration).toBeLessThan(10000);
@@ -145,40 +145,40 @@ test.describe('Performance Glitch User Variant @performance-user', () => {
     await page.goto('https://www.saucedemo.com');
 
     // Login
-    await page.fill('input[name="user-name"]', username);
-    await page.fill('input[name="password"]', password);
-    await page.click('#login-button');
+    await page.fill('[data-test="username"]', username);
+    await page.fill('[data-test="password"]', password);
+    await page.click('[data-test="login-button"]');
     await page.waitForURL(/inventory\.html/, { timeout: 30000 });
 
     // Add item
     await page.click('[data-test="add-to-cart-sauce-labs-backpack"]');
 
     // Go to cart
-    await page.click('.shopping_cart_link');
+    await page.click('[data-test="shopping-cart-link"]');
     await page.waitForURL(/cart\.html/, { timeout: 30000 });
 
     // Checkout
-    await page.click('button:has-text("Checkout")');
+    await page.click('[data-test="checkout"]');
     await page.waitForURL(/checkout-step-one/, { timeout: 30000 });
 
     // Fill info
-    await page.fill('input[name="firstName"]', 'Test');
-    await page.fill('input[name="lastName"]', 'User');
-    await page.fill('input[name="postalCode"]', '12345');
+    await page.fill('[data-test="firstName"]', 'Test');
+    await page.fill('[data-test="lastName"]', 'User');
+    await page.fill('[data-test="postalCode"]', '12345');
 
     // Continue to step 2
-    await page.click('input[value="Continue"]');
+    await page.click('[data-test="continue"]');
     await page.waitForURL(/checkout-step-two/, { timeout: 30000 });
 
     // Finish
-    await page.click('button:has-text("Finish")');
+    await page.click('[data-test="finish"]');
     await page.waitForURL(/checkout-complete/, { timeout: 30000 });
 
     const checkoutDuration = Date.now() - checkoutStartTime;
 
     // ==================== ASSERT ====================
-    await expect(page.locator('.complete-header')).toBeVisible();
-    await expect(page.locator('.complete-header')).not.toBeEmpty();
+    await expect(page.locator('[data-test="complete-header"]')).toBeVisible();
+    await expect(page.locator('[data-test="complete-header"]')).not.toBeEmpty();
 
     expect(checkoutDuration).toBeLessThan(120000); // Less than 2 minutes
 
@@ -192,9 +192,9 @@ test.describe('Performance Glitch User Variant @performance-user', () => {
     const { username, password } = SAUCE_CREDENTIALS.glitch;
 
     await page.goto('https://www.saucedemo.com');
-    await page.fill('input[name="user-name"]', username);
-    await page.fill('input[name="password"]', password);
-    await page.click('#login-button');
+    await page.fill('[data-test="username"]', username);
+    await page.fill('[data-test="password"]', password);
+    await page.click('[data-test="login-button"]');
     await page.waitForURL(/inventory\.html/, { timeout: 30000 });
 
     const sortStartTime = Date.now();
@@ -206,7 +206,7 @@ test.describe('Performance Glitch User Variant @performance-user', () => {
     const sortDuration = Date.now() - sortStartTime;
 
     // ==================== ASSERT ====================
-    const names = await page.locator('.inventory_item_name').allTextContents();
+    const names = await page.locator('[data-test="inventory-item-name"]').allTextContents();
 
     // Should be reverse alphabetical
     const sorted = [...names].sort().reverse();
@@ -229,9 +229,9 @@ test.describe('Performance Glitch User Variant @performance-user', () => {
     // ==================== ACT ====================
     // 1. Login
     await page.goto('https://www.saucedemo.com');
-    await page.fill('input[name="user-name"]', username);
-    await page.fill('input[name="password"]', password);
-    await page.click('#login-button');
+    await page.fill('[data-test="username"]', username);
+    await page.fill('[data-test="password"]', password);
+    await page.click('[data-test="login-button"]');
     await page.waitForURL(/inventory\.html/, { timeout: 30000 });
 
     // 2. Add items
@@ -243,7 +243,7 @@ test.describe('Performance Glitch User Variant @performance-user', () => {
     await page.waitForLoadState('networkidle', { timeout: 30000 });
 
     // 4. Navigate to cart
-    await page.click('.shopping_cart_link');
+    await page.click('[data-test="shopping-cart-link"]');
     await page.waitForURL(/cart\.html/, { timeout: 30000 });
 
     const operationDuration = Date.now() - operationStartTime;
@@ -268,14 +268,14 @@ test.describe('Performance Glitch User Variant @performance-user', () => {
     // ==================== ACT ====================
     const loginStartTime = Date.now();
     await page.goto('https://www.saucedemo.com');
-    await page.fill('input[name="user-name"]', username);
-    await page.fill('input[name="password"]', password);
-    await page.click('#login-button');
+    await page.fill('[data-test="username"]', username);
+    await page.fill('[data-test="password"]', password);
+    await page.click('[data-test="login-button"]');
     await page.waitForURL(/inventory\.html/, { timeout: SLA_LOGIN_TIMEOUT });
     const loginTime = Date.now() - loginStartTime;
 
     const navStartTime = Date.now();
-    await page.click('.shopping_cart_link');
+    await page.click('[data-test="shopping-cart-link"]');
     await page.waitForURL(/cart\.html/, { timeout: SLA_NAV_TIMEOUT });
     const navTime = Date.now() - navStartTime;
 

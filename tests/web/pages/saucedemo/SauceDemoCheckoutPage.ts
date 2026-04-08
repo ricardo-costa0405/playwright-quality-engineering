@@ -22,7 +22,7 @@ export interface CheckoutInfo {
 export class SauceDemoCheckoutPage extends BasePage {
   private readonly SELECTORS = {
     // Step 1
-    title:          '.title',
+    title:          '[data-test="title"]',
     firstName:      '[data-test="firstName"]',
     lastName:       '[data-test="lastName"]',
     postalCode:     '[data-test="postalCode"]',
@@ -37,8 +37,8 @@ export class SauceDemoCheckoutPage extends BasePage {
     finishButton:   '[data-test="finish"]',
 
     // Complete
-    completeHeader: '.complete-header',
-    completeText:   '.complete-text',
+    completeHeader: '[data-test="complete-header"]',
+    completeText:   '[data-test="complete-text"]',
     backHomeButton: '[data-test="back-to-products"]',
   } as const;
 

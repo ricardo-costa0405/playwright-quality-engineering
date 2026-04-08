@@ -16,7 +16,7 @@ export type SortOption = 'az' | 'za' | 'lohi' | 'hilo';
  */
 export class SauceDemoInventoryPage extends BasePage {
   private readonly SELECTORS = {
-    title:         '.title',
+    title:         '[data-test="title"]',
     inventoryList: '[data-test="inventory-container"]',
     inventoryItem: '[data-test="inventory-item"]',
     itemName:      '[data-test="inventory-item-name"]',

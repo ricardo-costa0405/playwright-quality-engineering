@@ -36,9 +36,9 @@ test.describe('Checkout Feature @checkout', () => {
 
     // ==================== ASSERT ====================
     await expect(page).toHaveURL(/checkout-complete/);
-    await expect(page.locator('.complete-header')).toBeVisible();
-    await expect(page.locator('.complete-header')).toContainText('Thank you');
-    await expect(page.locator('.complete-text')).not.toBeEmpty();
+    await expect(page.locator('[data-test="complete-header"]')).toBeVisible();
+    await expect(page.locator('[data-test="complete-header"]')).toContainText('Thank you');
+    await expect(page.locator('[data-test="complete-text"]')).not.toBeEmpty();
   });
 
   // ─── Validation ──────────────────────────────────────────────────────────
@@ -90,7 +90,7 @@ test.describe('Checkout Feature @checkout', () => {
 
     // ==================== ASSERT ====================
     await expect(page).toHaveURL(/cart\.html/);
-    await expect(page.locator('.title')).toHaveText('Your Cart');
+    await expect(page.locator('[data-test="title"]')).toHaveText('Your Cart');
   });
 
   test('order overview displays total before finishing', async ({ checkoutPage, page }) => {
@@ -124,7 +124,7 @@ test.describe('Checkout Feature @checkout', () => {
 
     // ==================== ASSERT ====================
     await expect(page).toHaveURL(/inventory\.html/);
-    await expect(page.locator('.inventory_list')).toBeVisible();
+    await expect(page.locator('[data-test="inventory-list"]')).toBeVisible();
   });
 
 });

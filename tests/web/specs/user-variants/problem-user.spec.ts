@@ -35,7 +35,7 @@ test.describe('Problem User Variant @problem-user', () => {
     await expect(page).toHaveURL(/inventory\.html/);
     await expect(page).toHaveTitle('Swag Labs');
     // Despite visual glitches, inventory list should load
-    await expect(page.locator('.inventory_list')).toBeVisible();
+    await expect(page.locator('[data-test="inventory-list"]')).toBeVisible();
   });
 
   test('problem_user sees products but with visual rendering issues', async ({ inventoryPage, page }) => {
@@ -71,7 +71,7 @@ test.describe('Problem User Variant @problem-user', () => {
     await inventoryPage.goToCart();
     await expect(page).toHaveURL(/cart\.html/);
 
-    const cartItemCount = await page.locator('.cart_item').count();
+    const cartItemCount = await page.locator('[data-test="inventory-item"]').count();
     expect(cartItemCount).toBe(1);
   });
 
@@ -187,7 +187,7 @@ test.describe('Problem User Variant @problem-user', () => {
 
     // Items should persist in cart
     await inventoryPage.goToCart();
-    const cartItemCount = await page.locator('.cart_item').count();
+    const cartItemCount = await page.locator('[data-test="inventory-item"]').count();
     expect(cartItemCount).toBe(items.length);
   });
 
