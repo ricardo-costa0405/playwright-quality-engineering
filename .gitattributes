@@ -1,0 +1,40 @@
+# Auto normalize line endings for all commits
+* text=auto
+
+# Source code
+*.ts text eol=lf
+*.js text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.xml text eol=lf
+
+# Shell scripts
+*.sh text eol=lf
+*.bash text eol=lf
+
+# Windows batch files
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+*.mp4 binary
+*.webm binary
+*.mov binary
+*.tar binary
+*.zip binary
+*.gz binary
+*.7z binary
+*.jar binary
+
+# Git files
+.gitattributes merge=union
+.gitignore merge=union

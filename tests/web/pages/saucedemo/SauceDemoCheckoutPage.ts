@@ -1,0 +1,116 @@
+import { expect } from '@playwright/test';
+import { BasePage } from '../BasePage';
+
+export interface CheckoutInfo {
+  firstName: string;
+  lastName:  string;
+  postalCode: string;
+}
+
+/**
+ * Sauce Demo Checkout Page — Page Object Model
+ *
+ * Covers 3 sequential steps:
+ *
+ *   Step 1 (/checkout-step-one.html)  — Customer info form
+ *   Step 2 (/checkout-step-two.html)  — Order overview + totals
+ *   Complete (/checkout-complete.html) — Confirmation
+ *
+ * Each step is handled by dedicated methods; the POM follows the user
+ * through the entire flow without the test knowing about URLs.
+ */
+export class SauceDemoCheckoutPage extends BasePage {
+  private readonly SELECTORS = {
+    // Step 1
+    title:          '.title',
+    firstName:      '[data-test="firstName"]',
+    lastName:       '[data-test="lastName"]',
+    postalCode:     '[data-test="postalCode"]',
+    continueButton: '[data-test="continue"]',
+    cancelButton:   '[data-test="cancel"]',
+    errorMessage:   '[data-test="error"]',
+
+    // Step 2
+    itemTotal:      '.summary_subtotal_label',
+    taxLabel:       '.summary_tax_label',
+    totalLabel:     '.summary_total_label',
+    finishButton:   '[data-test="finish"]',
+
+    // Complete
+    completeHeader: '.complete-header',
+    completeText:   '.complete-text',
+    backHomeButton: '[data-test="back-to-products"]',
+  } as const;
+
+  protected getUrl(): string {
+    return '/checkout-step-one.html';
+  }
+
+  protected async verifyPageLoaded(): Promise<void> {
+    await expect(this.page.locator(this.SELECTORS.firstName)).toBeVisible();
+  }
+
+  // ─── Step 1: Customer Info ────────────────────────────────────────────────
+
+  async fillInfo(info: CheckoutInfo): Promise<void> {
+    await this.fillInput(this.SELECTORS.firstName, info.firstName);
+    await this.fillInput(this.SELECTORS.lastName, info.lastName);
+    await this.fillInput(this.SELECTORS.postalCode, info.postalCode);
+  }
+
+  async continueToOverview(): Promise<void> {
+    await this.page.locator(this.SELECTORS.continueButton).click();
+    await this.page.waitForLoadState('domcontentloaded');
+  }
+
+  async cancelCheckout(): Promise<void> {
+    await this.page.locator(this.SELECTORS.cancelButton).click();
+    await this.page.waitForLoadState('domcontentloaded');
+  }
+
+  async hasError(): Promise<boolean> {
+    return this.isElementVisible(this.SELECTORS.errorMessage);
+  }
+
+  async getErrorMessage(): Promise<string> {
+    return this.getText(this.SELECTORS.errorMessage);
+  }
+
+  // ─── Step 2: Overview ────────────────────────────────────────────────────
+
+  async getItemTotal(): Promise<string> {
+    return this.getText(this.SELECTORS.itemTotal);
+  }
+
+  async getTax(): Promise<string> {
+    return this.getText(this.SELECTORS.taxLabel);
+  }
+
+  async getTotal(): Promise<string> {
+    return this.getText(this.SELECTORS.totalLabel);
+  }
+
+  async finishOrder(): Promise<void> {
+    await this.page.locator(this.SELECTORS.finishButton).click();
+    await this.page.waitForLoadState('domcontentloaded');
+  }
+
+  // ─── Complete ────────────────────────────────────────────────────────────
+
+  async isOrderComplete(): Promise<boolean> {
+    return this.isElementVisible(this.SELECTORS.completeHeader);
+  }
+
+  async getCompleteHeader(): Promise<string> {
+    return this.getText(this.SELECTORS.completeHeader);
+  }
+
+  async getCompleteText(): Promise<string> {
+    return this.getText(this.SELECTORS.completeText);
+  }
+
+  async backToProducts(): Promise<void> {
+    await this.page.locator(this.SELECTORS.backHomeButton).click();
+    await this.page.waitForLoadState('domcontentloaded');
+  }
+}

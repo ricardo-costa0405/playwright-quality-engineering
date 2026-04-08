@@ -1,0 +1,23 @@
+# Code ownership for repository management
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owner for everything
+* @
+
+# Test specifications
+tests/ @
+
+# Agent orchestration
+agents/ @
+
+# Configuration
+config/ @
+
+# CI/CD workflows
+.github/workflows/ @
+
+# Documentation
+*.md @
+
+# Test utilities and helpers
+utils/ @
