@@ -16,6 +16,9 @@ jobs:
   test:
     timeout-minutes: 30
     runs-on: ubuntu-latest
+    permissions:
+      checks: write
+      pull-requests: write
     strategy:
       fail-fast: false
       matrix:
