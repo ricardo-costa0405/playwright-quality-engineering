@@ -25,7 +25,7 @@ export class SauceDemoInventoryPage extends BasePage {
     cartLink:      '[data-test="shopping-cart-link"]',
     sortDropdown:  '[data-test="product-sort-container"]',
     burgerMenu:    '#react-burger-menu-btn',
-    logoutLink:    '#logout_sidebar_link',
+    logoutLink:    '[data-test="logout-sidebar-link"]',
     menuClose:     '#react-burger-cross-btn',
   } as const;
 
