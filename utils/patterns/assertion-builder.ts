@@ -1,4 +1,4 @@
-import { Locator, Page, Response as PlaywrightResponse, expect } from '@playwright/test';
+import { Locator, Page, expect, type Response as PlaywrightResponse } from '@playwright/test';
 
 /**
  * Element state for assertions

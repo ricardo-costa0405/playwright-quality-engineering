@@ -40,7 +40,7 @@ export class TestDataGenerator {
    * Generate phone number
    */
   static generatePhoneNumber(): string {
-    return faker.phone.number('+1-###-###-####');
+    return faker.phone.number();
   }
 
   /**

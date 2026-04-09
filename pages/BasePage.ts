@@ -120,7 +120,7 @@ export abstract class BasePage {
     await expect(input).toBeEditable({ timeout: 10000 });
 
     // Type character by character (slower, more human-like)
-    await input.type(text, { delay: 50 });
+    await input.pressSequentially(text, { delay: 50 });
   }
 
   /**
@@ -135,11 +135,7 @@ export abstract class BasePage {
     await expect(select).toBeVisible({ timeout: 10000 });
     await expect(select).toBeEnabled({ timeout: 10000 });
 
-    if (typeof option === 'string') {
-      await select.selectOption(option);
-    } else {
-      await select.selectOption(option);
-    }
+    await select.selectOption(option);
 
     // Verify selection
     const selectedValue = await select.inputValue();
@@ -206,18 +202,8 @@ export abstract class BasePage {
    * Get all text contents from multiple elements
    */
   protected async getTextList(selector: string): Promise<string[]> {
-    const elements = this.page.locator(selector);
-    const count = await elements.count();
-
-    const texts: string[] = [];
-    for (let i = 0; i < count; i++) {
-      const text = await elements.nth(i).textContent();
-      if (text) {
-        texts.push(text.trim());
-      }
-    }
-
-    return texts;
+    const texts = await this.page.locator(selector).allTextContents();
+    return texts.map(t => t.trim()).filter(Boolean);
   }
 
   /**
