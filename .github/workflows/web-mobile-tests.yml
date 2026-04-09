@@ -22,24 +22,41 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        device: ['Mobile Chrome', 'Mobile Safari', 'Galaxy S24']
-        node-version: [24.x]
+        include:
+          - device: 'Mobile Chrome'
+            browser: chromium
+          - device: 'Mobile Safari'
+            browser: webkit
+          - device: 'Galaxy S24'
+            browser: chromium
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js ${{ matrix.node-version }}
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 24.x
           cache: 'npm'
 
       - name: Install dependencies
         run: npm ci --prefer-offline --no-audit
 
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ matrix.browser }}-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
       - name: Install Playwright browsers
-        run: npm run install:browsers
+        run: |
+          if [ "${{ steps.playwright-cache.outputs.cache-hit }}" = "true" ]; then
+            npx playwright install-deps ${{ matrix.browser }}
+          else
+            npx playwright install --with-deps ${{ matrix.browser }}
+          fi
 
       - name: Run web mobile tests - ${{ matrix.device }}
         run: npm run test:web-mobile -- --project="${{ matrix.device }}"
