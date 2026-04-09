@@ -11,6 +11,10 @@ concurrency:
   group: playwright-smoke-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
   smoke:
     timeout-minutes: 15
@@ -20,10 +24,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js 20.x
+      - name: Setup Node.js 22.x
         uses: actions/setup-node@v4
         with:
-          node-version: 20.x
+          node-version: 22.x
           cache: 'npm'
 
       - name: Install dependencies
@@ -56,7 +60,7 @@ jobs:
               const xml = fs.readFileSync(xmlPath, 'utf8');
               const passed = (xml.match(/type="passed"/g) || []).length;
               const failed = (xml.match(/type="failed"/g) || []).length;
-              github.rest.issues.createComment({
+              await github.rest.issues.createComment({
                 issue_number: context.issue.number,
                 owner: context.repo.owner,
                 repo: context.repo.repo,
