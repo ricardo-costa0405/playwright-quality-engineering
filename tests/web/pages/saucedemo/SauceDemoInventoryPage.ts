@@ -62,7 +62,7 @@ export class SauceDemoInventoryPage extends BasePage {
   async addItemToCart(itemName: string): Promise<void> {
     const item = this.page.locator(this.SELECTORS.inventoryItem).filter({ hasText: itemName });
     await expect(item).toBeVisible();
-    await item.getByRole('button').click();
+    await item.getByRole('button', { name: /add to cart/i }).click();
   }
 
   /**
@@ -71,7 +71,7 @@ export class SauceDemoInventoryPage extends BasePage {
   async removeItemFromCart(itemName: string): Promise<void> {
     const item = this.page.locator(this.SELECTORS.inventoryItem).filter({ hasText: itemName });
     await expect(item).toBeVisible();
-    await item.getByRole('button').click();
+    await item.getByRole('button', { name: /remove/i }).click();
   }
 
   async getCartBadgeCount(): Promise<number> {
