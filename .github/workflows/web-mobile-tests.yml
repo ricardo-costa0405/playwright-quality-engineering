@@ -23,7 +23,7 @@ jobs:
       fail-fast: false
       matrix:
         device: ['Mobile Chrome', 'Mobile Safari', 'Galaxy S24']
-        node-version: [22.x]
+        node-version: [20.x]
 
     steps:
       - name: Checkout code
