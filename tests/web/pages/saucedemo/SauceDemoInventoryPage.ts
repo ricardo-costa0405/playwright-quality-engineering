@@ -24,9 +24,9 @@ export class SauceDemoInventoryPage extends BasePage {
     cartBadge:     '[data-test="shopping-cart-badge"]',
     cartLink:      '[data-test="shopping-cart-link"]',
     sortDropdown:  '[data-test="product-sort-container"]',
-    burgerMenu:    '#react-burger-menu-btn',
+    burgerMenu:    '[id="react-burger-menu-btn"]',
     logoutLink:    '[data-test="logout-sidebar-link"]',
-    menuClose:     '#react-burger-cross-btn',
+    menuClose:     '[id="react-burger-cross-btn"]',
   } as const;
 
   protected getUrl(): string {
