@@ -11,6 +11,10 @@ concurrency:
   group: playwright-smoke-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
   smoke:
     timeout-minutes: 15
@@ -20,10 +24,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js 20.x
+      - name: Setup Node.js 24.x
         uses: actions/setup-node@v4
         with:
-          node-version: 20.x
+          node-version: 24.x
           cache: 'npm'
 
       - name: Install dependencies
@@ -52,14 +56,52 @@ jobs:
           script: |
             const fs = require('fs');
             const xmlPath = 'reports/junit/web-results.xml';
-            if (fs.existsSync(xmlPath)) {
-              const xml = fs.readFileSync(xmlPath, 'utf8');
-              const passed = (xml.match(/type="passed"/g) || []).length;
-              const failed = (xml.match(/type="failed"/g) || []).length;
-              github.rest.issues.createComment({
-                issue_number: context.issue.number,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                body: `### Smoke Test Results\n✅ Passed: ${passed}\n❌ Failed: ${failed}`
-              });
-            }
+            if (!fs.existsSync(xmlPath)) return;
+
+            const xml = fs.readFileSync(xmlPath, 'utf8');
+
+            // Parse root <testsuites> attributes
+            const root = xml.match(/<testsuites[^>]*>/)?.[0] ?? '';
+            const attr = (name) => {
+              const m = root.match(new RegExp(`${name}="([^"]+)"`));
+              return m ? m[1] : '0';
+            };
+
+            const total    = parseInt(attr('tests'),    10) || 0;
+            const failures = parseInt(attr('failures'), 10) || 0;
+            const errors   = parseInt(attr('errors'),   10) || 0;
+            const skipped  = parseInt(attr('skipped'),  10) || 0;
+            const duration = parseFloat(attr('time'))       || 0;
+            const passed   = total - failures - errors - skipped;
+
+            // Per-test durations for performance metrics
+            const times = [...xml.matchAll(/<testcase\b[^>]*\btime="([\d.]+)"/g)]
+              .map(m => parseFloat(m[1]))
+              .filter(t => t > 0);
+            const avg = times.length
+              ? (times.reduce((a, b) => a + b, 0) / times.length).toFixed(2)
+              : '0.00';
+            const max = times.length ? Math.max(...times).toFixed(2) : '0.00';
+
+            const badge = failures + errors === 0 ? '[PASS]' : '[FAIL]';
+
+            const body = [
+              `### Smoke Test Results  ${badge}`,
+              '',
+              '| Metric     | Value |',
+              '|------------|-------|',
+              `| Status     | ${badge} |`,
+              `| Passed     | ${passed} / ${total} |`,
+              `| Failed     | ${failures + errors} |`,
+              `| Skipped    | ${skipped} |`,
+              `| Duration   | ${duration.toFixed(2)}s |`,
+              `| Avg / test | ${avg}s |`,
+              `| Max / test | ${max}s |`,
+            ].join('\n');
+
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body,
+            });
