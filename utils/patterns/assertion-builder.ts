@@ -1,4 +1,4 @@
-import { Locator, Page, expect } from '@playwright/test';
+import { Locator, Page, expect, type Response as PlaywrightResponse } from '@playwright/test';
 
 /**
  * Element state for assertions
@@ -132,7 +132,7 @@ export class AssertionBuilder {
    * Validates both status and content
    */
   static async assertAPIResponse(
-    response: Response,
+    response: PlaywrightResponse,
     expected: APIExpectation
   ): Promise<void> {
     expect(response.ok()).toBe(true);
