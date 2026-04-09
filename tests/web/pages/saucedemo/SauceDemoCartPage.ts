@@ -59,7 +59,7 @@ export class SauceDemoCartPage extends BasePage {
   async removeItem(itemName: string): Promise<void> {
     const item = this.page.locator(this.SELECTORS.cartItem).filter({ hasText: itemName });
     await expect(item).toBeVisible();
-    await item.getByRole('button').click();
+    await item.getByRole('button', { name: /remove/i }).click();
     // Verify the item is gone before returning
     await expect(
       this.page.locator(this.SELECTORS.cartItem).filter({ hasText: itemName })
