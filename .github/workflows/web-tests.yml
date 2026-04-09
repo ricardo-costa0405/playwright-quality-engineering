@@ -23,7 +23,7 @@ jobs:
       fail-fast: false
       matrix:
         browser: [chromium, firefox, webkit]
-        node-version: [20.x]
+        node-version: [22.x]
 
     steps:
       - name: Checkout code
