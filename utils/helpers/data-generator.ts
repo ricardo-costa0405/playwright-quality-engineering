@@ -16,7 +16,7 @@ export class TestDataGenerator {
   } {
     return {
       email: faker.internet.email(),
-      password: `${faker.string.alphaNumeric(10)}Aa1!`,
+      password: `${faker.string.alphanumeric(10)}Aa1!`,
       firstName: faker.person.firstName(),
       lastName: faker.person.lastName(),
     };
@@ -33,7 +33,7 @@ export class TestDataGenerator {
    * Generate strong password
    */
   static generatePassword(): string {
-    return faker.string.alphaNumeric(12) + 'Aa1!';
+    return faker.string.alphanumeric(12) + 'Aa1!';
   }
 
   /**
@@ -90,7 +90,7 @@ export class TestDataGenerator {
       name: faker.commerce.productName(),
       description: faker.commerce.productDescription(),
       price: parseFloat(faker.commerce.price()),
-      sku: faker.string.alphaNumeric(10).toUpperCase(),
+      sku: faker.string.alphanumeric(10).toUpperCase(),
     };
   }
 
@@ -118,7 +118,7 @@ export class TestDataGenerator {
    * Generate random slug
    */
   static generateSlug(): string {
-    return faker.slug();
+    return faker.helpers.slugify(faker.lorem.words(3));
   }
 
   /**

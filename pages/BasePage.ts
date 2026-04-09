@@ -244,7 +244,7 @@ export abstract class BasePage {
    */
   protected async evaluateScript<T>(
     expression: string,
-    arg?: Record<string, any>
+    arg?: Record<string, unknown>
   ): Promise<T> {
     return this.page.evaluate<T>(expression, arg);
   }

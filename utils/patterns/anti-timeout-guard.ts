@@ -1,4 +1,4 @@
-import { Page } from '@playwright/test';
+import { Page, Response as PlaywrightResponse } from '@playwright/test';
 
 /**
  * Anti-Timeout Guard
@@ -98,7 +98,7 @@ export class AntiTimeoutGuard {
     async apiResponse(
       page: Page,
       urlPattern: string | RegExp
-    ): Promise<Response | null> {
+    ): Promise<PlaywrightResponse | null> {
       try {
         return await page.waitForResponse(
           (response) =>
@@ -119,9 +119,9 @@ export class AntiTimeoutGuard {
       urlpattern: string | RegExp,
       count: number
     ): Promise<void> {
-      const responses: Response[] = [];
+      const responses: PlaywrightResponse[] = [];
 
-      const listener = (response: Response): void => {
+      const listener = (response: PlaywrightResponse): void => {
         const matches =
           typeof urlpattern === 'string'
             ? response.url().includes(urlpattern)
@@ -186,6 +186,7 @@ export class AntiTimeoutGuard {
         }
 
         // Small delay to avoid busy-waiting
+        // eslint-disable-next-line no-restricted-syntax
         await page.waitForTimeout(100);
       }
 

@@ -1,5 +1,3 @@
-#!/usr/bin/env ts-node
-
 /**
  * Playwright Failure Classifier
  *

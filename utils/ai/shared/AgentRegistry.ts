@@ -1,4 +1,4 @@
-import { AgentBase, AgentTask, AgentResult } from './AgentBase';
+import { AgentBase, AgentTask as _AgentTask, AgentResult as _AgentResult } from './AgentBase';
 import { Logger } from 'winston';
 
 /**

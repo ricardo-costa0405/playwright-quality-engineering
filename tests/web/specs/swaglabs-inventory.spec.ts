@@ -1,4 +1,4 @@
-import { test, expect } from '../fixtures/saucedemo-fixtures';
+import { test, expect } from '../../../fixtures/saucedemo-fixtures';
 
 /**
  * Swag Labs — Inventory Feature Tests @inventory

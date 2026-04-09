@@ -1,4 +1,4 @@
-import { test, expect, SAUCE_CREDENTIALS } from '../../fixtures/saucedemo-fixtures';
+import { test, expect, SAUCE_CREDENTIALS } from '../../../../fixtures/saucedemo-fixtures';
 
 /**
  * Swag Labs — Performance Glitch User Variant Tests @performance-user
@@ -78,7 +78,7 @@ test.describe('Performance Glitch User Variant @performance-user', () => {
     const requests: { url: string; duration: number }[] = [];
 
     // Capture network timing
-    page.on('response', async (response) => {
+    page.on('response', (response) => {
       const timing = response.request().timing();
       if (timing) {
         requests.push({

@@ -1,4 +1,4 @@
-import { Locator, Page, expect } from '@playwright/test';
+import { Locator, Page, Response as PlaywrightResponse, expect } from '@playwright/test';
 
 /**
  * Element state for assertions
@@ -19,8 +19,8 @@ export interface ElementState {
  */
 export interface APIExpectation {
   status: number;
-  schema?: Record<string, any>;
-  contains?: Record<string, any>;
+  schema?: Record<string, unknown>;
+  contains?: Record<string, unknown>;
 }
 
 /**
@@ -132,7 +132,7 @@ export class AssertionBuilder {
    * Validates both status and content
    */
   static async assertAPIResponse(
-    response: Response,
+    response: PlaywrightResponse,
     expected: APIExpectation
   ): Promise<void> {
     expect(response.ok()).toBe(true);
@@ -153,8 +153,8 @@ export class AssertionBuilder {
    * Validate object against schema
    */
   private static validateSchema(
-    obj: Record<string, any>,
-    schema: Record<string, any>
+    obj: Record<string, unknown>,
+    schema: Record<string, unknown>
   ): void {
     for (const [key, expectedType] of Object.entries(schema)) {
       if (!(key in obj)) {

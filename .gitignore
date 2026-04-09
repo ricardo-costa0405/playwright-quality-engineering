@@ -245,8 +245,8 @@ perf/
 *.sqlite
 *.sqlite3
 
-# MCP Server generated files
-.mcp/servers-cache.json
+# MCP Server files (IDE/tool-specific, not portfolio content)
+.mcp/
 
 # Generated coverage/analysis documents (AI-produced, not source)
 COVERAGE_ANALYSIS.md
@@ -258,9 +258,7 @@ QUICK_START_COVERAGE.md
 agents/temp/
 agents/logs/
 
-# Screencast analysis temp
-utils/screencast/temp/
-utils/screencast/cache/
+# Removed: utils/screencast/ (module deleted)
 
 # Performance metrics (generated)
 metrics/
