@@ -120,7 +120,7 @@ export abstract class BasePage {
     await expect(input).toBeEditable({ timeout: 10000 });
 
     // Type character by character (slower, more human-like)
-    await input.type(text, { delay: 50 });
+    await input.pressSequentially(text, { delay: 50 });
   }
 
   /**
