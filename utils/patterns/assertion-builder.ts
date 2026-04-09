@@ -19,8 +19,8 @@ export interface ElementState {
  */
 export interface APIExpectation {
   status: number;
-  schema?: Record<string, any>;
-  contains?: Record<string, any>;
+  schema?: Record<string, unknown>;
+  contains?: Record<string, unknown>;
 }
 
 /**
@@ -153,8 +153,8 @@ export class AssertionBuilder {
    * Validate object against schema
    */
   private static validateSchema(
-    obj: Record<string, any>,
-    schema: Record<string, any>
+    obj: Record<string, unknown>,
+    schema: Record<string, unknown>
   ): void {
     for (const [key, expectedType] of Object.entries(schema)) {
       if (!(key in obj)) {

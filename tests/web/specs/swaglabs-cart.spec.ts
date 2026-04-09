@@ -1,4 +1,4 @@
-import { test, expect } from '../fixtures/saucedemo-fixtures';
+import { test, expect } from '../../../fixtures/saucedemo-fixtures';
 
 /**
  * Swag Labs — Cart Feature Tests @cart
@@ -34,7 +34,7 @@ test.describe('Cart Feature @cart', () => {
     await inventoryPage.goToCart();
 
     // ==================== ASSERT ====================
-    const cartPage = new (await import('../pages/saucedemo/SauceDemoCartPage')).SauceDemoCartPage(page);
+    const cartPage = new (await import('../../../pages/saucedemo/SauceDemoCartPage')).SauceDemoCartPage(page);
     const names = await cartPage.getCartItemNames();
     expect(names).toContain(item);
     expect(await cartPage.getCartItemCount()).toBe(1);
@@ -46,7 +46,7 @@ test.describe('Cart Feature @cart', () => {
     await inventoryPage.addItemToCart(item);
     await inventoryPage.goToCart();
 
-    const cartPage = new (await import('../pages/saucedemo/SauceDemoCartPage')).SauceDemoCartPage(page);
+    const cartPage = new (await import('../../../pages/saucedemo/SauceDemoCartPage')).SauceDemoCartPage(page);
     expect(await cartPage.getCartItemCount()).toBe(1);
 
     // ==================== ACT ====================
@@ -62,7 +62,7 @@ test.describe('Cart Feature @cart', () => {
     await inventoryPage.addItemToCart(item);
     await inventoryPage.goToCart();
 
-    const cartPage = new (await import('../pages/saucedemo/SauceDemoCartPage')).SauceDemoCartPage(page);
+    const cartPage = new (await import('../../../pages/saucedemo/SauceDemoCartPage')).SauceDemoCartPage(page);
 
     // ==================== ACT ====================
     await cartPage.continueShopping();
@@ -86,7 +86,7 @@ test.describe('Cart Feature @cart', () => {
     await inventoryPage.goToCart();
 
     // ==================== ASSERT ====================
-    const cartPage = new (await import('../pages/saucedemo/SauceDemoCartPage')).SauceDemoCartPage(page);
+    const cartPage = new (await import('../../../pages/saucedemo/SauceDemoCartPage')).SauceDemoCartPage(page);
     expect(await cartPage.getCartItemCount()).toBe(items.length);
 
     const names = await cartPage.getCartItemNames();

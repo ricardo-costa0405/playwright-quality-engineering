@@ -189,6 +189,7 @@ export class AntiTimeoutGuard {
         }
 
         // Small delay to avoid busy-waiting
+        // eslint-disable-next-line no-restricted-syntax
         await page.waitForTimeout(100);
       }
 

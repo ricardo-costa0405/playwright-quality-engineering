@@ -1,4 +1,4 @@
-import { test, expect, SAUCE_CREDENTIALS } from '../../fixtures/saucedemo-fixtures';
+import { test, expect, SAUCE_CREDENTIALS } from '../../../../fixtures/saucedemo-fixtures';
 
 /**
  * Swag Labs — Problem User Variant Tests @problem-user

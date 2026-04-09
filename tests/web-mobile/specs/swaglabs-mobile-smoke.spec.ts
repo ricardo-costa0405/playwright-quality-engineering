@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { SAUCE_CREDENTIALS } from '../../web/fixtures/saucedemo-fixtures';
+import { SAUCE_CREDENTIALS } from '../../../fixtures/saucedemo-fixtures';
 
 const BASE_URL = 'https://www.saucedemo.com';
 const TEST_USERNAME = SAUCE_CREDENTIALS.standard.username;

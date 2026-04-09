@@ -1,7 +1,7 @@
 {
-  "name": "playwright-quality-engineering",
+  "name": "playwright-framework",
   "version": "1.0.0",
-  "description": "Production-grade Playwright E2E testing framework — Page Object Model, zero flakiness, multi-browser",
+  "description": "Playwright TypeScript E2E framework — Page Object Model, multi-browser, CI-ready",
   "type": "module",
   "main": "dist/index.js",
   "scripts": {
@@ -21,11 +21,10 @@
     "analyze:failures:json": "ts-node utils/reporters/failure-classifier.ts --json --out reports/failure-report.json",
     "validate:aaa": "ts-node utils/patterns/validate-all-tests.ts",
     "validate:timeouts": "ts-node utils/patterns/scan-for-timeouts.ts",
-    "lint": "eslint . --ext .ts",
+    "lint": "eslint .",
     "format": "prettier --write \"**/*.{ts,json,md}\"",
     "type-check": "tsc --noEmit",
-    "install:browsers": "playwright install --with-deps",
-    "screencast:clean": "rm -rf reports/screencast-debug/*"
+    "install:browsers": "playwright install --with-deps"
   },
   "keywords": [
     "playwright",
@@ -37,7 +36,6 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@executeautomation/playwright-mcp-server": "^1.0.0",
     "axios": "^1.6.0",
     "dotenv": "^16.0.0",
     "playwright": "^1.59.0",
@@ -48,18 +46,14 @@
   "devDependencies": {
     "@faker-js/faker": "^8.3.0",
     "@playwright/test": "^1.59.0",
-    "@types/fluent-ffmpeg": "^2.1.21",
     "@types/node": "^20.10.0",
     "@types/uuid": "^9.0.7",
     "@typescript-eslint/eslint-plugin": "^6.13.0",
     "@typescript-eslint/parser": "^6.13.0",
     "allure-playwright": "^3.0.0",
     "eslint": "^8.54.0",
-    "fluent-ffmpeg": "^2.1.2",
-    "jest-junit": "^16.0.0",
     "junit-report-merger": "^6.0.0",
     "prettier": "^3.1.0",
-    "sharp": "^0.33.0",
     "ts-node": "^10.9.1",
     "typescript": "^5.3.0"
   }
