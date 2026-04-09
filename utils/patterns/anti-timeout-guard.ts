@@ -1,4 +1,4 @@
-import { Page } from '@playwright/test';
+import { Page, type Response as PlaywrightResponse } from '@playwright/test';
 
 /**
  * Anti-Timeout Guard
@@ -98,7 +98,7 @@ export class AntiTimeoutGuard {
     async apiResponse(
       page: Page,
       urlPattern: string | RegExp
-    ): Promise<Response | null> {
+    ): Promise<PlaywrightResponse | null> {
       try {
         return await page.waitForResponse(
           (response) =>
@@ -119,28 +119,31 @@ export class AntiTimeoutGuard {
       urlpattern: string | RegExp,
       count: number
     ): Promise<void> {
-      const responses: Response[] = [];
+      let received = 0;
 
-      const listener = (response: Response): void => {
-        const matches =
-          typeof urlpattern === 'string'
-            ? response.url().includes(urlpattern)
-            : urlpattern.test(response.url());
+      await new Promise<void>((resolve, reject) => {
+        const timer = setTimeout(() => {
+          page.off('response', listener);
+          reject(new Error(`Timed out waiting for ${count} API responses`));
+        }, 30000);
 
-        if (matches && response.ok()) {
-          responses.push(response);
+        const listener = (response: PlaywrightResponse): void => {
+          const matches =
+            typeof urlpattern === 'string'
+              ? response.url().includes(urlpattern)
+              : urlpattern.test(response.url());
 
-          if (responses.length >= count) {
-            page.off('response', listener);
+          if (matches && response.ok()) {
+            received++;
+            if (received >= count) {
+              clearTimeout(timer);
+              page.off('response', listener);
+              resolve();
+            }
           }
-        }
-      };
+        };
 
-      page.on('response', listener);
-
-      // Wait with timeout
-      await page.waitForFunction(() => responses.length >= count, {
-        timeout: 30000,
+        page.on('response', listener);
       });
     },
 

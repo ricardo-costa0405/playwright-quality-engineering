@@ -31,9 +31,9 @@ export class SauceDemoCheckoutPage extends BasePage {
     errorMessage:   '[data-test="error"]',
 
     // Step 2
-    itemTotal:      '.summary_subtotal_label',
-    taxLabel:       '.summary_tax_label',
-    totalLabel:     '.summary_total_label',
+    itemTotal:      '[data-test="subtotal-label"]',
+    taxLabel:       '[data-test="tax-label"]',
+    totalLabel:     '[data-test="total-label"]',
     finishButton:   '[data-test="finish"]',
 
     // Complete

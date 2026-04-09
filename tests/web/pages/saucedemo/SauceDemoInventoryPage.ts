@@ -24,9 +24,9 @@ export class SauceDemoInventoryPage extends BasePage {
     cartBadge:     '[data-test="shopping-cart-badge"]',
     cartLink:      '[data-test="shopping-cart-link"]',
     sortDropdown:  '[data-test="product-sort-container"]',
-    burgerMenu:    '#react-burger-menu-btn',
-    logoutLink:    '#logout_sidebar_link',
-    menuClose:     '#react-burger-cross-btn',
+    burgerMenu:    '[id="react-burger-menu-btn"]',
+    logoutLink:    '[data-test="logout-sidebar-link"]',
+    menuClose:     '[id="react-burger-cross-btn"]',
   } as const;
 
   protected getUrl(): string {
@@ -62,7 +62,7 @@ export class SauceDemoInventoryPage extends BasePage {
   async addItemToCart(itemName: string): Promise<void> {
     const item = this.page.locator(this.SELECTORS.inventoryItem).filter({ hasText: itemName });
     await expect(item).toBeVisible();
-    await item.getByRole('button').click();
+    await item.getByRole('button', { name: /add to cart/i }).click();
   }
 
   /**
@@ -71,7 +71,7 @@ export class SauceDemoInventoryPage extends BasePage {
   async removeItemFromCart(itemName: string): Promise<void> {
     const item = this.page.locator(this.SELECTORS.inventoryItem).filter({ hasText: itemName });
     await expect(item).toBeVisible();
-    await item.getByRole('button').click();
+    await item.getByRole('button', { name: /remove/i }).click();
   }
 
   async getCartBadgeCount(): Promise<number> {

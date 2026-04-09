@@ -1,4 +1,4 @@
-import { test as base, expect } from '@playwright/test';
+import { test as base, expect, type Page } from '@playwright/test';
 
 /**
  * Custom Fixtures for Web Tests
@@ -6,7 +6,7 @@ import { test as base, expect } from '@playwright/test';
  */
 
 type CustomFixtures = {
-  authenticatedPage: typeof base;
+  authenticatedPage: Page;
 };
 
 /**

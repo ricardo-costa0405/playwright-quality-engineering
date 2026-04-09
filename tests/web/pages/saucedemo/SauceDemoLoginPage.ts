@@ -20,11 +20,11 @@ import { BasePage } from '../BasePage';
  */
 export class SauceDemoLoginPage extends BasePage {
   private readonly SELECTORS = {
-    username:    '#user-name',
-    password:    '#password',
-    loginButton: '#login-button',
+    username:     '[data-test="username"]',
+    password:     '[data-test="password"]',
+    loginButton:  '[data-test="login-button"]',
     errorMessage: '[data-test="error"]',
-    errorButton:  '.error-button',
+    errorButton:  '[data-test="error-button"]',
   } as const;
 
   protected getUrl(): string {
