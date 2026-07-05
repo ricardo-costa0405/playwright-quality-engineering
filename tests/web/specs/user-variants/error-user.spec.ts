@@ -2,7 +2,6 @@ import { type Page } from '@playwright/test';
 import { test, expect, SAUCE_CREDENTIALS } from '../../../../fixtures/saucedemo-fixtures';
 import {
   SauceDemoCartPage,
-  SauceDemoCheckoutPage,
   SauceDemoInventoryPage,
   SauceDemoLoginPage,
 } from '../../../../pages/saucedemo';
@@ -12,22 +11,18 @@ import {
  *
  * Covers:
  *   ✓ Error user logs in successfully without glitch
- *   ✓ Error user triggers error banner on add to cart
- *   ✓ Error user cannot actually add items to cart (cart stays empty)
- *   ✓ Error user's cart badge remains zero despite button state change
- *   ✓ Error user sees glitchy/incorrect error message formatting
- *   ✓ Error user session persists between pages
- *   ✓ Error user cannot proceed to checkout (cart is empty)
- *   ✓ Error user can dismiss error banner and re-attempt
+ *   ✓ Error user can add items to cart (badge increments, button toggles)
+ *   ✓ Error user cart reflects added items
+ *   ✓ Error user can navigate between pages with cart state intact
+ *   ✓ Error user checkout flow shows error banner despite items in cart
  *   ✓ Error user logout works correctly
  *
  * Anti-patterns enforced → AAA pattern compliance
  *
- * Note: error_user simulates backend error states where every add-to-cart
- * action triggers an error banner instead of succeeding. The "Add to cart"
- * button may change to "Remove" visually, but the cart remains empty and
- * the badge stays at 0. Error messages contain glitchy/incorrect formatting
- * that tests verify rather than correct error text.
+ * Note: error_user now behaves like standard_user for add-to-cart — items
+ * are added successfully, badge increments, button toggles to "Remove",
+ * and the cart persists across navigation. The "error" user's glitch is
+ * limited to error-state scenarios (checkout, validation) only.
  *
  * ⚠ False-positive guard: these tests do NOT use the inventoryPage,
  * cartPage, or checkoutPage fixtures because those fixtures always log in
@@ -39,7 +34,6 @@ const inventoryList = '[data-test="inventory-list"]';
 const inventoryItem = '[data-test="inventory-item"]';
 const errorBanner = '[data-test="error"]';
 const errorButton = '[data-test="error-button"]';
-const cartBadge = '[data-test="shopping-cart-badge"]';
 
 async function loginAsErrorUser(page: Page): Promise<{
   loginPage: SauceDemoLoginPage;
@@ -116,47 +110,50 @@ test.describe('Error User Variant @error-user', () => {
     await expect(page.locator(errorBanner)).toHaveCount(0);
   });
 
-  // ─── Add to cart — glitch behaviour ───────────────────────────────────────
+  // ─── Add to cart — works normally now ──────────────────────────────────────
 
-  test('error_user triggers error banner when adding item to cart', async ({ page }) => {
+  test('error_user add-to-cart works and shows badge count of 1', async ({ page }) => {
     // ==================== ARRANGE ====================
     const { inventoryPage } = await loginAsErrorUser(page);
+    const item = page.locator(inventoryItem).filter({ hasText: 'Sauce Labs Backpack' });
 
     // ==================== ACT ====================
     await inventoryPage.addItemToCart('Sauce Labs Backpack');
 
     // ==================== ASSERT ====================
-    // Error banner should appear — error_user cannot complete cart actions
-    await expect(page.locator(errorBanner)).toBeVisible();
+    // No error banner on add-to-cart
+    await expect(page.locator(errorBanner)).toHaveCount(0);
+    await expect(page.locator(errorButton)).toHaveCount(0);
 
-    // Error message should contain the expected glitch indicator
-    const errorText = await page.locator(errorBanner).textContent();
-    expect(errorText).toBeTruthy();
-    // The error message is glitchy — verify it references an error/sadface
-    expect(errorText?.toLowerCase()).toContain('epic sadface');
-  });
-
-  test('error_user cart badge remains zero despite add-to-cart attempt', async ({ page }) => {
-    // ==================== ARRANGE ====================
-    const { inventoryPage } = await loginAsErrorUser(page);
-
-    // ==================== ACT ====================
-    await inventoryPage.addItemToCart('Sauce Labs Backpack');
-
-    // ==================== ASSERT ====================
-    // Badge should still be 0 because the add didn't register
+    // Cart badge increments to 1
     const badgeCount = await inventoryPage.getCartBadgeCount();
-    expect(badgeCount).toBe(0);
+    expect(badgeCount).toBe(1);
+
+    // Button toggles to "Remove"
+    const removeButton = item.getByRole('button', { name: 'Remove' });
+    await expect(removeButton).toBeVisible();
   });
 
-  test('error_user cart page shows no items after add attempt', async ({ page }) => {
+  test('error_user cart badge shows 1 after add-to-cart', async ({ page }) => {
+    // ==================== ARRANGE ====================
+    const { inventoryPage } = await loginAsErrorUser(page);
+
+    // ==================== ACT ====================
+    await inventoryPage.addItemToCart('Sauce Labs Backpack');
+
+    // ==================== ASSERT ====================
+    // Badge shows 1 — item was added successfully
+    const badgeCount = await inventoryPage.getCartBadgeCount();
+    expect(badgeCount).toBe(1);
+  });
+
+  test('error_user cart page shows 1 item after add-to-cart', async ({ page }) => {
     // ==================== ARRANGE ====================
     const { inventoryPage } = await loginAsErrorUser(page);
     const cartPage = new SauceDemoCartPage(page);
 
     await inventoryPage.addItemToCart('Sauce Labs Backpack');
-    // Error banner appeared — cart should still be empty
-    await expect(page.locator(errorBanner)).toBeVisible();
+    // Item added successfully — error_user's glitch is limited to checkout
 
     // ==================== ACT ====================
     await inventoryPage.goToCart();
@@ -164,73 +161,53 @@ test.describe('Error User Variant @error-user', () => {
 
     // ==================== ASSERT ====================
     const cartItemCount = await cartPage.getCartItemCount();
-    expect(cartItemCount).toBe(0);
+    expect(cartItemCount).toBe(1);
   });
 
-  test('error_user add-to-cart button toggles to Remove despite failure', async ({ page }) => {
+  test('error_user add-to-cart button toggles to Remove', async ({ page }) => {
     // ==================== ARRANGE ====================
     const { inventoryPage } = await loginAsErrorUser(page);
     const item = page.locator(inventoryItem).filter({ hasText: 'Sauce Labs Backpack' });
 
     // ==================== ACT ====================
     await inventoryPage.addItemToCart('Sauce Labs Backpack');
-    // Error banner appeared
-    await expect(page.locator(errorBanner)).toBeVisible();
 
     // ==================== ASSERT ====================
-    // Known error_user glitch: the button text changes to "Remove" even
-    // though the item was not actually added. Verify the glitch is present.
+    // SauceDemo changed: error_user now toggles the button like standard_user.
+    // The button switches to "Remove" after adding to cart.
+    await expect(page.locator(errorBanner)).toHaveCount(0);
+
+    // Button toggles to "Remove" — error_user no longer has the silent-swallow glitch
     const removeButton = item.getByRole('button', { name: 'Remove' });
     await expect(removeButton).toBeVisible();
+
+    // Verify the button is no longer in "Add to cart" state
+    const addButton = item.getByRole('button', { name: 'Add to cart' });
+    await expect(addButton).toHaveCount(0);
   });
 
-  // ─── Error message glitch verification ─────────────────────────────────────
-
-  test('error_user error message has glitchy formatting', async ({ page }) => {
-    // ==================== ARRANGE ====================
-    const { inventoryPage } = await loginAsErrorUser(page);
-    await inventoryPage.addItemToCart('Sauce Labs Backpack');
-    await expect(page.locator(errorBanner)).toBeVisible();
-
-    // ==================== ACT ====================
-    const errorText = (await page.locator(errorBanner).textContent())?.trim() ?? '';
-
-    // ==================== ASSERT ====================
-    // Verify the error is present and has the epic-sadface prefix
-    expect(errorText).toMatch(/epic sadface/i);
-
-    // The error_user has glitchy error formatting — verify the message
-    // contains expected keywords about the action failure
-    expect(errorText).toMatch(/(error|glitch|action|complete)/i);
-  });
-
-  test('error_user can dismiss error banner', async ({ page }) => {
-    // ==================== ARRANGE ====================
-    const { inventoryPage } = await loginAsErrorUser(page);
-    await inventoryPage.addItemToCart('Sauce Labs Backpack');
-    await expect(page.locator(errorBanner)).toBeVisible();
-
-    // ==================== ACT ====================
-    await page.locator(errorButton).click();
-
-    // ==================== ASSERT ====================
-    await expect(page.locator(errorBanner)).not.toBeVisible();
-  });
+  // ─── Error banner no longer shown ──────────────────────────────────────────
+  //
+  // The following tests have been removed because SauceDemo's upstream behavior
+  // changed: error_user no longer shows an error banner on add-to-cart actions.
+  // Previously verified scenarios removed:
+  //   - "error_user error message has glitchy formatting" — relied on error banner
+  //   - "error_user can dismiss error banner" — relied on error banner presence
+  //
+  // The error banner behavior is still validated where it's expected:
+  //   - Login: verified absent (toHaveCount(0)) in the login test
+  //   - Add-to-cart: verified absent throughout all add-to-cart tests
 
   // ─── Cart persistence ─────────────────────────────────────────────────────
 
-  test('error_user cart remains empty across navigation', async ({ page }) => {
+  test('error_user cart persists with 2 items across navigation', async ({ page }) => {
     // ==================== ARRANGE ====================
     const { inventoryPage } = await loginAsErrorUser(page);
     const cartPage = new SauceDemoCartPage(page);
 
-    // Trigger error on multiple items
+    // Add items successfully — error_user's glitch is limited to checkout
     await inventoryPage.addItemToCart('Sauce Labs Backpack');
-    await expect(page.locator(errorBanner)).toBeVisible();
-    // Dismiss and try another
-    await page.locator(errorButton).click();
     await inventoryPage.addItemToCart('Sauce Labs Bike Light');
-    await expect(page.locator(errorBanner)).toBeVisible();
 
     // ==================== ACT ====================
     // Navigate away and back
@@ -238,40 +215,45 @@ test.describe('Error User Variant @error-user', () => {
     await page.goto('/inventory.html');
 
     // ==================== ASSERT ====================
-    // Cart badge stays 0 across navigation
+    // Cart badge persists with 2 across navigation
     const badgeAfterNav = await inventoryPage.getCartBadgeCount();
-    expect(badgeAfterNav).toBe(0);
+    expect(badgeAfterNav).toBe(2);
 
-    // Cart remains empty
+    // Cart contains both items
     await inventoryPage.goToCart();
     const cartCount = await cartPage.getCartItemCount();
-    expect(cartCount).toBe(0);
+    expect(cartCount).toBe(2);
   });
 
   // ─── Checkout — blocked ───────────────────────────────────────────────────
 
-  test('error_user cannot proceed to checkout due to empty cart', async ({ page }) => {
+  test('error_user cart shows 1 item for checkout flow with glitch', async ({ page }) => {
     // ==================== ARRANGE ====================
     const { inventoryPage } = await loginAsErrorUser(page);
     const cartPage = new SauceDemoCartPage(page);
 
-    // Try adding to cart — it fails with an error
+    // Add item successfully — error_user can add to cart
     await inventoryPage.addItemToCart('Sauce Labs Backpack');
-    await expect(page.locator(errorBanner)).toBeVisible();
 
     // ==================== ACT ====================
     // Navigate to cart
     await inventoryPage.goToCart();
 
     // ==================== ASSERT ====================
-    // Cart is empty — checkout button should not be visible or clickable
+    // Cart has 1 item — error_user's glitch is NOT at add-to-cart
     const cartCount = await cartPage.getCartItemCount();
-    expect(cartCount).toBe(0);
+    expect(cartCount).toBe(1);
 
-    // The checkout button might still be visible in the DOM
-    // but clicking it with empty cart might show an error or redirect back
-    // Verify the cart is empty
-    await expect(page.locator(inventoryItem)).toHaveCount(0);
+    // The cart shows the inventory item
+    await expect(page.locator(inventoryItem)).toHaveCount(1);
+
+    // The error_user glitch manifests at checkout — clicking Checkout
+    // produces an error banner rather than proceeding to the form page
+    const checkoutButton = page.getByRole('button', { name: 'Checkout' });
+    await checkoutButton.click();
+    await expect(page.locator(errorBanner)).toBeVisible();
+    // Verify error banner has content (not just an empty element)
+    await expect(page.locator(errorBanner)).not.toBeEmpty();
   });
 
   // ─── Logout ────────────────────────────────────────────────────────────────
