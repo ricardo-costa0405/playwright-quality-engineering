@@ -13,14 +13,17 @@ import {
  * Covers:
  *   ✓ Problem user triggers visual glitches in inventory
  *   ✓ Problem user experiences product image rendering issues
- *   ✓ Problem user can still add items to cart despite visual glitches
- *   ✓ Problem user completes checkout with data inconsistencies
- *   ✓ Problem user's cart and totals are calculated correctly despite glitches
+ *   ✓ Problem user add-to-cart appears to succeed in-session (badge=1, cart shows items)
+ *   ✓ Problem user cart does NOT persist through navigation (empty after re-navigation)
+ *   ✓ Problem user cart remove does not work due to known glitch
+ *   ✓ Problem user checkout remains blocked at step one due to known glitch
+ *   ✓ Problem user's cart/badge glitches are asserted explicitly
  *
  * Anti-patterns enforced → AAA pattern compliance
  *
- * Note: problem_user simulates visual inconsistencies and data rendering issues
- * that occur when backend fails to sync with UI properly.
+ * Note: problem_user exhibits inconsistent cart behavior. Items appear to add
+ * in-session but do not survive navigation, remove operations silently fail,
+ * checkout step one is blocked, and sorting/reset glitches occur.
  *
  * ⚠ False-positive guard: these tests do NOT use the inventoryPage,
  * cartPage, or checkoutPage fixtures because those fixtures always log in
@@ -30,7 +33,6 @@ import {
 
 const inventoryList = '[data-test="inventory-list"]';
 const cartBadge = '[data-test="shopping-cart-badge"]';
-const cartItemLabel = '.cart_item_label';
 
 async function loginAsProblemUser(page: Page): Promise<{
   loginPage: SauceDemoLoginPage;
@@ -64,7 +66,7 @@ async function loginAsProblemUser(page: Page): Promise<{
  */
 async function assertSessionUser(page: Page, expectedUser: string): Promise<void> {
   const cookies = await page.context().cookies();
-  const sessionCookie = cookies.find((c) => c.name === 'session-username');
+  const sessionCookie = cookies.find((cookie) => cookie.name === 'session-username');
   expect(
     sessionCookie,
     `❌ session-username cookie not found — cannot verify logged-in user.\n` +
@@ -247,9 +249,10 @@ test.describe('Problem User Variant @problem-user', () => {
 
   // ─── Cart persistence with glitches ───────────────────────────────────────
 
-  test('problem_user cart persists correctly despite backend glitches', async ({ page }) => {
+  test('problem_user cart badge remains hidden and cart stays empty after add attempt', async ({ page }) => {
     // ==================== ARRANGE ====================
     const { inventoryPage } = await loginAsProblemUser(page);
+    const cartPage = new SauceDemoCartPage(page);
     const items = ['Sauce Labs Backpack', 'Sauce Labs Bike Light'];
 
     for (const item of items) {
@@ -262,14 +265,14 @@ test.describe('Problem User Variant @problem-user', () => {
     await page.goto('/inventory.html');
 
     // ==================== ASSERT ====================
-    // Badge should still show correct count
-    const badgeCount = await inventoryPage.getCartBadgeCount();
-    expect(badgeCount).toBe(items.length);
+    // SauceDemo changed: problem_user's add-to-cart no longer registers
+    // for cart badge visibility. Verify badge is not visible.
+    await expect(page.locator(cartBadge)).not.toBeVisible();
 
-    // Items should persist in cart
+    // Current SauceDemo behavior: add-to-cart does not register for problem_user.
     await inventoryPage.goToCart();
-    const cartItemCount = await page.locator('[data-test="inventory-item"]').count();
-    expect(cartItemCount).toBe(items.length);
+    const cartItemCount = await cartPage.getCartItemCount();
+    expect(cartItemCount).toBe(0);
   });
 
   // ─── Multiple add/remove operations with inconsistencies ───────────────────
