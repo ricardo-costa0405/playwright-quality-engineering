@@ -11,16 +11,17 @@ import {
  *
  * Covers:
  *   ✓ Error user logs in successfully without glitch
- *   ✓ Error user add-to-cart attempts are swallowed by current upstream behavior
- *   ✓ Error user cart stays empty across navigation
- *   ✓ Error user checkout remains unavailable when cart is empty
+ *   ✓ Error user add-to-cart appears to succeed in-session (badge=1, Remove button toggles)
+ *   ✓ Error user cart shows items in-session but does NOT persist through navigation
+ *   ✓ Error user checkout is accessible when cart has items in-session
  *   ✓ Error user logout works correctly
  *
  * Anti-patterns enforced → AAA pattern compliance
  *
- * Note: SauceDemo upstream changed again: error_user add-to-cart attempts
- * currently do not register items. The cart badge stays hidden and cart page
- * remains empty, so checkout is unavailable.
+ * Note: error_user on SauceDemo exhibits ephemeral add-to-cart behavior.
+ * Items appear to add successfully in-session (badge increments, Remove button
+ * visible, cart shows items) but do NOT survive navigation away and back —
+ * the cart badge disappears and cart resets to empty after re-navigation.
  *
  * ⚠ False-positive guard: these tests do NOT use the inventoryPage,
  * cartPage, or checkoutPage fixtures because those fixtures always log in

@@ -13,14 +13,17 @@ import {
  * Covers:
  *   ✓ Problem user triggers visual glitches in inventory
  *   ✓ Problem user experiences product image rendering issues
- *   ✓ Problem user add-to-cart attempts do not register in current upstream behavior
- *   ✓ Problem user checkout remains blocked before step two
+ *   ✓ Problem user add-to-cart appears to succeed in-session (badge=1, cart shows items)
+ *   ✓ Problem user cart does NOT persist through navigation (empty after re-navigation)
+ *   ✓ Problem user cart remove does not work due to known glitch
+ *   ✓ Problem user checkout remains blocked at step one due to known glitch
  *   ✓ Problem user's cart/badge glitches are asserted explicitly
  *
  * Anti-patterns enforced → AAA pattern compliance
  *
- * Note: problem_user simulates visual inconsistencies and data rendering issues
- * that occur when backend fails to sync with UI properly.
+ * Note: problem_user exhibits inconsistent cart behavior. Items appear to add
+ * in-session but do not survive navigation, remove operations silently fail,
+ * checkout step one is blocked, and sorting/reset glitches occur.
  *
  * ⚠ False-positive guard: these tests do NOT use the inventoryPage,
  * cartPage, or checkoutPage fixtures because those fixtures always log in
