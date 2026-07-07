@@ -225,12 +225,12 @@ test.describe('Error User Variant @error-user', () => {
 
   // ─── Checkout — blocked ───────────────────────────────────────────────────
 
-  test('error_user cart stays empty after checkout add attempt', async ({ page }) => {
+  test('error_user cart shows 1 item after add-to-cart and checkout is accessible', async ({ page }) => {
     // ==================== ARRANGE ====================
     const { inventoryPage } = await loginAsErrorUser(page);
     const cartPage = new SauceDemoCartPage(page);
 
-    // SauceDemo changed: error_user add-to-cart no longer registers items.
+    // SauceDemo changed: error_user add-to-cart now registers items.
     await inventoryPage.addItemToCart('Sauce Labs Backpack');
 
     // ==================== ACT ====================
@@ -238,13 +238,13 @@ test.describe('Error User Variant @error-user', () => {
     await inventoryPage.goToCart();
 
     // ==================== ASSERT ====================
-    // Cart remains empty — the current upstream glitch is at add-to-cart.
+    // Cart should contain 1 item — upstream behavior changed.
     const cartCount = await cartPage.getCartItemCount();
-    expect(cartCount).toBe(0);
+    expect(cartCount).toBe(1);
 
-    // No item is present, so checkout is not available on the empty cart.
-    await expect(page.locator(inventoryItem)).toHaveCount(0);
-    await expect(page.getByRole('button', { name: 'Checkout' })).toHaveCount(0);
+    // Item is present, so checkout button should be visible.
+    await expect(page.locator(inventoryItem)).toHaveCount(1);
+    await expect(page.getByRole('button', { name: 'Checkout' })).toBeVisible();
   });
 
   // ─── Logout ────────────────────────────────────────────────────────────────
