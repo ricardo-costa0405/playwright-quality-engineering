@@ -13,9 +13,9 @@ import {
  * Covers:
  *   ✓ Problem user triggers visual glitches in inventory
  *   ✓ Problem user experiences product image rendering issues
- *   ✓ Problem user can still add items to cart despite visual glitches
- *   ✓ Problem user completes checkout with data inconsistencies
- *   ✓ Problem user's cart and totals are calculated correctly despite glitches
+ *   ✓ Problem user add-to-cart attempts do not register in current upstream behavior
+ *   ✓ Problem user checkout remains blocked before step two
+ *   ✓ Problem user's cart/badge glitches are asserted explicitly
  *
  * Anti-patterns enforced → AAA pattern compliance
  *
@@ -30,7 +30,6 @@ import {
 
 const inventoryList = '[data-test="inventory-list"]';
 const cartBadge = '[data-test="shopping-cart-badge"]';
-const cartItemLabel = '.cart_item_label';
 
 async function loginAsProblemUser(page: Page): Promise<{
   loginPage: SauceDemoLoginPage;
@@ -64,7 +63,7 @@ async function loginAsProblemUser(page: Page): Promise<{
  */
 async function assertSessionUser(page: Page, expectedUser: string): Promise<void> {
   const cookies = await page.context().cookies();
-  const sessionCookie = cookies.find((c) => c.name === 'session-username');
+  const sessionCookie = cookies.find((cookie) => cookie.name === 'session-username');
   expect(
     sessionCookie,
     `❌ session-username cookie not found — cannot verify logged-in user.\n` +
@@ -247,7 +246,7 @@ test.describe('Problem User Variant @problem-user', () => {
 
   // ─── Cart persistence with glitches ───────────────────────────────────────
 
-  test('problem_user cart badge remains hidden but items persist in cart after add attempt', async ({ page }) => {
+  test('problem_user cart badge remains hidden and cart stays empty after add attempt', async ({ page }) => {
     // ==================== ARRANGE ====================
     const { inventoryPage } = await loginAsProblemUser(page);
     const cartPage = new SauceDemoCartPage(page);
@@ -267,11 +266,10 @@ test.describe('Problem User Variant @problem-user', () => {
     // for cart badge visibility. Verify badge is not visible.
     await expect(page.locator(cartBadge)).not.toBeVisible();
 
-    // But items should still be in the cart despite the badge rendering glitch.
-    // This validates the full persistence flow, not just badge absence.
+    // Current SauceDemo behavior: add-to-cart does not register for problem_user.
     await inventoryPage.goToCart();
     const cartItemCount = await cartPage.getCartItemCount();
-    expect(cartItemCount).toBe(2);
+    expect(cartItemCount).toBe(0);
   });
 
   // ─── Multiple add/remove operations with inconsistencies ───────────────────

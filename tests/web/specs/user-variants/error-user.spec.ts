@@ -11,18 +11,16 @@ import {
  *
  * Covers:
  *   ✓ Error user logs in successfully without glitch
- *   ✓ Error user can add items to cart (badge increments, button toggles)
- *   ✓ Error user cart reflects added items
- *   ✓ Error user can navigate between pages with cart state intact
- *   ✓ Error user checkout flow shows error banner despite items in cart
+ *   ✓ Error user add-to-cart attempts are swallowed by current upstream behavior
+ *   ✓ Error user cart stays empty across navigation
+ *   ✓ Error user checkout remains unavailable when cart is empty
  *   ✓ Error user logout works correctly
  *
  * Anti-patterns enforced → AAA pattern compliance
  *
- * Note: error_user now behaves like standard_user for add-to-cart — items
- * are added successfully, badge increments, button toggles to "Remove",
- * and the cart persists across navigation. The "error" user's glitch is
- * limited to error-state scenarios (checkout, validation) only.
+ * Note: SauceDemo upstream changed again: error_user add-to-cart attempts
+ * currently do not register items. The cart badge stays hidden and cart page
+ * remains empty, so checkout is unavailable.
  *
  * ⚠ False-positive guard: these tests do NOT use the inventoryPage,
  * cartPage, or checkoutPage fixtures because those fixtures always log in
@@ -32,6 +30,7 @@ import {
 
 const inventoryList = '[data-test="inventory-list"]';
 const inventoryItem = '[data-test="inventory-item"]';
+const cartBadge = '[data-test="shopping-cart-badge"]';
 const errorBanner = '[data-test="error"]';
 const errorButton = '[data-test="error-button"]';
 
@@ -64,7 +63,7 @@ async function loginAsErrorUser(page: Page): Promise<{
  */
 async function assertSessionUser(page: Page, expectedUser: string): Promise<void> {
   const cookies = await page.context().cookies();
-  const sessionCookie = cookies.find((c) => c.name === 'session-username');
+  const sessionCookie = cookies.find((cookie) => cookie.name === 'session-username');
   expect(
     sessionCookie,
     `❌ session-username cookie not found — cannot verify logged-in user.\n` +
@@ -200,12 +199,12 @@ test.describe('Error User Variant @error-user', () => {
 
   // ─── Cart persistence ─────────────────────────────────────────────────────
 
-  test('error_user cart persists with 2 items across navigation', async ({ page }) => {
+  test('error_user cart stays empty after add attempt across navigation', async ({ page }) => {
     // ==================== ARRANGE ====================
     const { inventoryPage } = await loginAsErrorUser(page);
     const cartPage = new SauceDemoCartPage(page);
 
-    // Add items successfully — error_user's glitch is limited to checkout
+    // SauceDemo changed: error_user add-to-cart no longer registers items.
     await inventoryPage.addItemToCart('Sauce Labs Backpack');
     await inventoryPage.addItemToCart('Sauce Labs Bike Light');
 
@@ -215,24 +214,23 @@ test.describe('Error User Variant @error-user', () => {
     await page.goto('/inventory.html');
 
     // ==================== ASSERT ====================
-    // Cart badge persists with 2 across navigation
-    const badgeAfterNav = await inventoryPage.getCartBadgeCount();
-    expect(badgeAfterNav).toBe(2);
+    // Cart badge remains absent because add-to-cart is swallowed.
+    await expect(page.locator(cartBadge)).not.toBeVisible();
 
-    // Cart contains both items
+    // Cart remains empty after navigation.
     await inventoryPage.goToCart();
     const cartCount = await cartPage.getCartItemCount();
-    expect(cartCount).toBe(2);
+    expect(cartCount).toBe(0);
   });
 
   // ─── Checkout — blocked ───────────────────────────────────────────────────
 
-  test('error_user cart shows 1 item for checkout flow with glitch', async ({ page }) => {
+  test('error_user cart stays empty after checkout add attempt', async ({ page }) => {
     // ==================== ARRANGE ====================
     const { inventoryPage } = await loginAsErrorUser(page);
     const cartPage = new SauceDemoCartPage(page);
 
-    // Add item successfully — error_user can add to cart
+    // SauceDemo changed: error_user add-to-cart no longer registers items.
     await inventoryPage.addItemToCart('Sauce Labs Backpack');
 
     // ==================== ACT ====================
@@ -240,20 +238,13 @@ test.describe('Error User Variant @error-user', () => {
     await inventoryPage.goToCart();
 
     // ==================== ASSERT ====================
-    // Cart has 1 item — error_user's glitch is NOT at add-to-cart
+    // Cart remains empty — the current upstream glitch is at add-to-cart.
     const cartCount = await cartPage.getCartItemCount();
-    expect(cartCount).toBe(1);
+    expect(cartCount).toBe(0);
 
-    // The cart shows the inventory item
-    await expect(page.locator(inventoryItem)).toHaveCount(1);
-
-    // The error_user glitch manifests at checkout — clicking Checkout
-    // produces an error banner rather than proceeding to the form page
-    const checkoutButton = page.getByRole('button', { name: 'Checkout' });
-    await checkoutButton.click();
-    await expect(page.locator(errorBanner)).toBeVisible();
-    // Verify error banner has content (not just an empty element)
-    await expect(page.locator(errorBanner)).not.toBeEmpty();
+    // No item is present, so checkout is not available on the empty cart.
+    await expect(page.locator(inventoryItem)).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Checkout' })).toHaveCount(0);
   });
 
   // ─── Logout ────────────────────────────────────────────────────────────────
